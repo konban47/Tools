@@ -70,7 +70,7 @@ fi
 # 6. 防火墙配置
 if command -v ufw >/dev/null 2>&1; then
     ufw allow "$SSH_PORT"/tcp
-    if [[ "$(ufw status)" == "status: inactive" ]]; then
+    if ufw status | grep -iq "inactive"; then
         echo -n "是否现在开启 UFW? (y/n): "
         read ENABLE_UFW < /dev/tty
         [[ "$ENABLE_UFW" == "y" ]] && ufw --force enable
