@@ -297,6 +297,16 @@ systemctl restart fail2ban.service
 systemctl is-active --quiet "$SSH_SERVICE"
 systemctl is-active --quiet fail2ban.service
 
+F2B_READY=0
+for _ in {1..40}; do
+    if fail2ban-client ping >/dev/null 2>&1 && fail2ban-client status sshd >/dev/null 2>&1; then
+        F2B_READY=1
+        break
+    fi
+    sleep 0.25
+done
+[[ $F2B_READY -eq 1 ]] || die 'Fail2ban 启动后未在 10 秒内就绪'
+
 for _ in {1..20}; do
     if ss -H -ltn | awk -v suffix=":$SSH_PORT" '$4 ~ (suffix "$") {found=1} END {exit !found}'; then
         break
