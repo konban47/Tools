@@ -135,7 +135,7 @@ else
 fi
 
 mapfile -t OLD_PORTS < <("$SSHD_BIN" -T | awk '$1 == "port" {print $2}')
-OLD_ROOT_LOGIN=$("$SSHD_BIN" -T | awk '$1 == "permitrootlogin" {print $2; exit}')
+OLD_ROOT_LOGIN=$("$SSHD_BIN" -T | awk '$1 == "permitrootlogin" {print $2}')
 CURRENT_IP=${SSH_CONNECTION:-}
 CURRENT_IP=${CURRENT_IP%% *}
 [[ -n $CURRENT_IP ]] || CURRENT_IP='未知'
@@ -272,12 +272,12 @@ mapfile -t EFFECTIVE_PORTS < <("$SSHD_BIN" -T | awk '$1 == "port" {print $2}')
     die "SSH 生效端口不是唯一的 $SSH_PORT，而是: ${EFFECTIVE_PORTS[*]:-未知}"
 
 if [[ $ROOT_LOGIN != unchanged ]]; then
-    EFFECTIVE_ROOT=$("$SSHD_BIN" -T | awk '$1 == "permitrootlogin" {print $2; exit}')
+    EFFECTIVE_ROOT=$("$SSHD_BIN" -T | awk '$1 == "permitrootlogin" {print $2}')
     [[ $EFFECTIVE_ROOT == "$ROOT_LOGIN" ]] || \
         die "PermitRootLogin 未按预期生效（实际: $EFFECTIVE_ROOT）"
 fi
 
-EFFECTIVE_MAX_AUTH=$("$SSHD_BIN" -T | awk '$1 == "maxauthtries" {print $2; exit}')
+EFFECTIVE_MAX_AUTH=$("$SSHD_BIN" -T | awk '$1 == "maxauthtries" {print $2}')
 [[ $EFFECTIVE_MAX_AUTH == "$MAX_RETRY" ]] || \
     die "MaxAuthTries 未按预期生效（实际: $EFFECTIVE_MAX_AUTH）"
 
