@@ -306,7 +306,13 @@ done
 ss -H -ltn | awk -v suffix=":$SSH_PORT" '$4 ~ (suffix "$") {found=1} END {exit !found}'
 
 fail2ban-client status sshd >/dev/null
-JAIL_PORT=$(fail2ban-client get sshd port | tr -d '[:space:]')
+JAIL_PORT=''
+while IFS= read -r action; do
+    if action_port=$(fail2ban-client get sshd action "$action" port 2>/dev/null); then
+        JAIL_PORT=$(printf '%s' "$action_port" | tr -d '[:space:]')
+        break
+    fi
+done < <(fail2ban-client get sshd actions | awk 'NR > 1 && NF == 1 {print $1}')
 JAIL_RETRY=$(fail2ban-client get sshd maxretry | tr -d '[:space:]')
 JAIL_BANTIME=$(fail2ban-client get sshd bantime | tr -d '[:space:]')
 [[ $JAIL_PORT == "$SSH_PORT" ]] || die "Fail2ban sshd 端口未生效（实际: $JAIL_PORT）"
